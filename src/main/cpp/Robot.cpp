@@ -51,9 +51,15 @@ class Robot: public frc::SampleRobot {
 	double current = c->GetCompressorCurrent();
 
 
-
+	//Drive Train Gear Mod
 	int gear = 3;
 	double speedMod = 1;
+
+	//Elevator Gear Mod
+	int elevGear = 1;
+	double elevSpeed = 1;
+
+	//Position Vars
 	float xAxis = 0;
 	float yAxis = 0;
 	float zAxis = 0;
@@ -177,7 +183,7 @@ public:
 			float forwardVelocityRight = forwardVelocity;
 			float backwardsVelocityRight = backwardsVelocity;
 
-			double totalTurnVelocity = (turnVelocity * -1);// * 1.5;
+			double totalTurnVelocity = (turnVelocity * 1);// * 1.5;
 
 			double netLeft = ((forwardVelocityLeft - backwardsVelocityLeft) + totalTurnVelocity);
 			double netRight = ((backwardsVelocityRight - forwardVelocityRight) + totalTurnVelocity);
@@ -192,11 +198,24 @@ public:
 			float elevBackward = ElevCont.GetRawAxis(3);
 
 			double netFoward = ((elevFoward - elevBackward));
-			double netBackward = ((elevBackward - elevFoward));
+			double netBackward = ((elevBackward - elevFoward) * -1);
+
+			if(ElevCont.GetPOV() == 0) {
+				elevGear = 3;
+				elevSpeed = 1;
+			}
+			else if(ElevCont.GetPOV() == 90) {
+				elevGear = 2;
+				elevSpeed = 0.5;
+			}
+			else if(ElevCont.GetPOV() == 180){
+				elevGear = 1;
+				elevSpeed = 0.25;
+			}
 			//Elevator Control
 			
-			elevTT.Set(netFoward * 1);
-			elevTT.Set(netBackward * -1);
+			elevTT.Set(netFoward * elevSpeed);
+			elevTT.Set(netBackward * elevSpeed);
 				
 			//Solenoid Control
 			
