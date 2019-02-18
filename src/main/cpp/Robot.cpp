@@ -23,18 +23,13 @@ using namespace frc;
 class Robot: public frc::SampleRobot {
 	//Left And Right Motor
 	Talon left {0}, right {1}, elevTT {6}; 
-		 
-	//Elevator Motor
-	
-	
-	
-	
+		
 	//Controller And Joysticks 
 	XboxController controller {0},ElevCont {1};
 	
 
 	//Solenoids
-	DoubleSolenoid testBench {0, 1};
+	DoubleSolenoid largeC {0, 1}, releaseC {2, 3};
 	//AUTO CHOOSER
 	SendableChooser<std::string> chooser;
 	const std::string autoNameDefault = "Default";
@@ -89,7 +84,8 @@ public:
 		cs::UsbCamera camera2 = CameraServer::GetInstance()->StartAutomaticCapture();
 		cs::CvSink GetVideo(const cs::VideoSource& camera);
 
-		testBench.Set(DoubleSolenoid::Value::kOff);
+		largeC.Set(DoubleSolenoid::Value::kOff);
+		releaseC.Set(DoubleSolenoid::Value::kOff);
 
 
 	}
@@ -126,21 +122,21 @@ public:
 		}
 		else if (autoSelected == kR){
 			std::cout << "kReverse" << std::endl;
-			testBench.Set(DoubleSolenoid::Value::kReverse);
+			largeC.Set(DoubleSolenoid::Value::kReverse);
 			Wait(1);
-			testBench.Set(DoubleSolenoid::Value::kOff);
+			largeC.Set(DoubleSolenoid::Value::kOff);
 
 		}
 		else if (autoSelected == kF){
 			std::cout << "kForward" << std::endl;
-			testBench.Set(DoubleSolenoid::Value::kForward);
+			largeC.Set(DoubleSolenoid::Value::kForward);
 			Wait(1);
-			testBench.Set(DoubleSolenoid::Value::kOff);
+			largeC.Set(DoubleSolenoid::Value::kOff);
 
 		}
 		else if (autoSelected == kO) {
 			std::cout << "kOff" << std::endl;
-			testBench.Set(DoubleSolenoid::Value::kOff);
+			largeC.Set(DoubleSolenoid::Value::kOff);
 		}
 		else {
 			std::cout << "Running Default Autonomous" << std::endl;
@@ -194,8 +190,8 @@ public:
 			right.Set(netRight * speedMod);
 
 			//Elevator Variable
-			float elevFoward = ElevCont.GetRawAxis(2);
-			float elevBackward = ElevCont.GetRawAxis(3);
+			float elevFoward = ElevCont.GetRawAxis(3);
+			float elevBackward = ElevCont.GetRawAxis(2);
 
 			double netFoward = ((elevFoward - elevBackward));
 			double netBackward = ((elevBackward - elevFoward) * -1);
@@ -219,20 +215,38 @@ public:
 				
 			//Solenoid Control
 			
-			if (ElevCont.GetRawButton(1)){
-				testBench.Set(DoubleSolenoid::Value::kReverse);
+			//Large Cylinders
+			if (ElevCont.GetRawButton(5)){
+				largeC.Set(DoubleSolenoid::Value::kReverse);
 				Wait(1);
-				testBench.Set(DoubleSolenoid::Value::kOff);
+				largeC.Set(DoubleSolenoid::Value::kOff);
 			}
 			
-			if (ElevCont.GetRawButton(2)){
-				testBench.Set(DoubleSolenoid::Value::kForward);
+			if (ElevCont.GetRawButton(6)){
+				largeC.Set(DoubleSolenoid::Value::kForward);
 				Wait(1);
-				testBench.Set(DoubleSolenoid::Value::kOff);
+				largeC.Set(DoubleSolenoid::Value::kOff);
 			}
 
+			if (ElevCont.GetRawButton(2)){
+				largeC.Set(DoubleSolenoid::Value::kOff);
+			}
+
+			//Small Cylinders AKA Release Function
 			if (ElevCont.GetRawButton(3)){
-				testBench.Set(DoubleSolenoid::Value::kOff);
+				releaseC.Set(DoubleSolenoid::Value::kReverse);
+				Wait(1);
+				releaseC.Set(DoubleSolenoid::Value::kOff);
+			}
+			
+			if (ElevCont.GetRawButton(4)){
+				releaseC.Set(DoubleSolenoid::Value::kForward);
+				Wait(1);
+				releaseC.Set(DoubleSolenoid::Value::kOff);
+			}
+
+			if (ElevCont.GetRawButton(1)){
+				releaseC.Set(DoubleSolenoid::Value::kOff);
 			}
 
 			
