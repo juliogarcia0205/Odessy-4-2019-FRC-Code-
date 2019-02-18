@@ -2,29 +2,37 @@
 #include <memory>
 #include <string>
 #include <frc/Joystick.h>
+#include <frc/XboxController.h>
 #include <frc/Talon.h>
 #include <frc/Spark.h>
 #include <ctre/Phoenix.h>
-#include <SampleRobot.h>
-#include <SmartDashboard/SendableChooser.h>
-#include <SmartDashboard/SmartDashboard.h>
-#include <RobotDrive.h>
-#include <CameraServer.h>
-#include <Timer.h>
+#include <frc/SampleRobot.h>
+#include <frc/smartdashboard/SendableChooser.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/RobotDrive.h>
+#include <cameraserver/CameraServer.h>
+#include <frc/Timer.h>
 #include <GripPipeline.h>
-#include <Compressor.h>
-#include <Solenoid.h>
-#include <DoubleSolenoid.h>
+#include <frc/Compressor.h>
+#include <frc/Solenoid.h>
+#include <frc/DoubleSolenoid.h>
 #define SRC_VISIONMETHODS_H_
 using namespace frc;
 
 //andrew
 class Robot: public frc::SampleRobot {
 	//Left And Right Motor
-	WPI_VictorSPX left {0};  //LEFT Motor Controllers
-	WPI_TalonSRX right {1};	 //RIGHT Motor Controllers
+	Talon left {0}, right {1}, elevTT {6}; 
+		 
+	//Elevator Motor
+	
+	
+	
+	
 	//Controller And Joysticks 
-	Joystick controller {0}, joystick {0};
+	XboxController controller {0},ElevCont {1};
+	
+
 	//Solenoids
 	DoubleSolenoid testBench {0, 1};
 	//AUTO CHOOSER
@@ -162,7 +170,7 @@ public:
 
 			float forwardVelocity = controller.GetRawAxis(2);
 			float backwardsVelocity = controller.GetRawAxis(3);
-			float turnVelocity = joystick.GetRawAxis(0);
+			float turnVelocity = controller.GetRawAxis(0);
 
 			float forwardVelocityLeft = forwardVelocity;
 			float backwardsVelocityLeft = backwardsVelocity;
@@ -179,21 +187,32 @@ public:
 			left.Set(netLeft * speedMod);
 			right.Set(netRight * speedMod);
 
+			//Elevator Variable
+			float elevFoward = ElevCont.GetRawAxis(2);
+			float elevBackward = ElevCont.GetRawAxis(3);
+
+			double netFoward = ((elevFoward - elevBackward));
+			double netBackward = ((elevBackward - elevFoward));
+			//Elevator Control
+			
+			elevTT.Set(netFoward * 1);
+			elevTT.Set(netBackward * -1);
+				
 			//Solenoid Control
 			
-			if (controller.GetRawButton(1)){
+			if (ElevCont.GetRawButton(1)){
 				testBench.Set(DoubleSolenoid::Value::kReverse);
 				Wait(1);
 				testBench.Set(DoubleSolenoid::Value::kOff);
 			}
 			
-			if (controller.GetRawButton(2)){
+			if (ElevCont.GetRawButton(2)){
 				testBench.Set(DoubleSolenoid::Value::kForward);
 				Wait(1);
 				testBench.Set(DoubleSolenoid::Value::kOff);
 			}
 
-			if (controller.GetRawButton(3)){
+			if (ElevCont.GetRawButton(3)){
 				testBench.Set(DoubleSolenoid::Value::kOff);
 			}
 
